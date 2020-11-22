@@ -1,9 +1,6 @@
 package com.nphc.hr.controller;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,7 +8,6 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
@@ -51,7 +47,7 @@ public class EmployeeController {
 		empDtoList= employeeResultList.stream().map(empObj -> {			 
 		   return converterService.convertToDto(empObj);		  
 		 }).collect(Collectors.toList());;		 
-		Page<Employee> userDtoPage = new PageImpl<>(employeeResultList, pageRequest, employeePage.getTotalElements());
+		//Page<Employee> userDtoPage = new PageImpl<>(employeeResultList, pageRequest, employeePage.getTotalElements());
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("results", empDtoList);
 		return ResponseEntity.status(HttpStatus.OK).body(map);
@@ -72,10 +68,7 @@ public class EmployeeController {
 
 	@PostMapping(path = "/", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Object> addEmployee(@RequestBody EmployeeDTO employeeDTO) {
-		try {
-			SimpleDateFormat logformat1 = new SimpleDateFormat("dd-MMM-yy");
-			SimpleDateFormat logformat2 = new SimpleDateFormat("yyyy-MM-dd");
-
+		try {		
 			Employee employee = new Employee();
 			employee.setId(employeeDTO.getId());
 			employee.setLogin(employeeDTO.getLogin());
@@ -114,8 +107,6 @@ public class EmployeeController {
 	@PatchMapping(path = "/", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Object> updateEmployee(@RequestBody EmployeeDTO employeeDTO) {
 		try {
-			SimpleDateFormat logformat1 = new SimpleDateFormat("dd-MMM-yy");
-			SimpleDateFormat logformat2 = new SimpleDateFormat("yyyy-MM-dd");
 			Employee employeeAvailable = employeeService.getEmpoyeeById(employeeDTO.getId());
 
 			Employee employee = new Employee();
@@ -123,19 +114,8 @@ public class EmployeeController {
 			employee.setLogin(employeeDTO.getLogin());
 			employee.setName(employeeDTO.getName());
 			employee.setSalary(employeeDTO.getSalary());
-			java.util.Date date = null;
-			try {
-				date = new Date(logformat2.parse(employeeDTO.getStartDate()).getTime());
-				employee.setStartDate(date);
-
-			} catch (ParseException e) {
-				try {
-					date = new Date(logformat2.parse(employeeDTO.getStartDate()).getTime());
-					employee.setStartDate(date);
-				} catch (ParseException p) {
-					p.getMessage();
-				}
-			}
+			employee.setStartDate(DateValidation.validateDate(employeeDTO.getStartDate()));
+			
 			Map<String, Object> map = new HashMap<String, Object>();
 			String validateResult = "";
 			if (employeeAvailable != null) {
@@ -157,28 +137,25 @@ public class EmployeeController {
 	}
 
 	@PostMapping(value = "/upload", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<Object> uploadFile(@RequestParam("file") MultipartFile file) throws Exception {
-		String message = "";
+	public ResponseEntity<Object> uploadFile(@RequestParam("file") MultipartFile file) throws Exception {		
+		Map<String, Object> map = new HashMap<String, Object>();
 		if (EmployeeCsvHelper.hasCSVFormat(file)) {
 			try {
-
 				List<String> listMessage = employeeService.save(file);
-				message = "Uploaded the file successfully: " + file.getOriginalFilename();
-				Map<String, Object> map = new HashMap<String, Object>();
 				if (listMessage.size() > 0)
 					map.put("Errors", listMessage);
 				else
-					map.put("results", message);
+					map.put("results",  "Uploaded the file successfully: " + file.getOriginalFilename());
 				return ResponseEntity.status(HttpStatus.OK).body(map);
 			} catch (Exception e) {
 				e.printStackTrace();
-				message = "Could not upload the file: " + file.getOriginalFilename() + "!";
-				return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(message);
+				map.put("results", "Could not upload the file: " + file.getOriginalFilename() + "!");
+				return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(map);
 			}
 		}
-
-		message = "Please upload a csv file!";
-		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(message);
+		
+		map.put("results", "Please upload a csv file!");
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(map);
 	}
 
 }

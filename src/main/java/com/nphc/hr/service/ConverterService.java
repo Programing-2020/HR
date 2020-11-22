@@ -6,14 +6,15 @@ import org.springframework.stereotype.Component;
 
 import com.nphc.hr.dto.EmployeeDTO;
 import com.nphc.hr.entity.Employee;
+
 @Component
 public class ConverterService {
-	
+
 	@Autowired
 	private ModelMapper modelMapper;
 
 // convert entity to dto	
-	public EmployeeDTO convertToDto(Employee employeeObject) {		
+	public EmployeeDTO convertToDto(Employee employeeObject) {
 		return modelMapper.map(employeeObject, EmployeeDTO.class);
 	}
 

@@ -69,7 +69,7 @@ public class EmployeeService {
 		employeeRepository.saveAll(employees);
 	}
 
-	public List<String> save(MultipartFile file) {
+	public List<String> save(MultipartFile file) throws Exception {
 		List<Employee> employees = new ArrayList<>();
 		List<String> errorMessage = new ArrayList<>();
 

@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.nphc.hr.entity.Employee;
 import com.nphc.hr.repository.EmployeeRepository;
+import com.nphc.hr.util.DateValidation;
 @Component
 public class EmployeeCsvHelper {
 
@@ -35,7 +36,7 @@ public class EmployeeCsvHelper {
 		return true;
 	}
 
-	public Map<String, Object> csvToEmp(InputStream is) {
+	public Map<String, Object> csvToEmp(InputStream is) throws Exception {
 		try (BufferedReader fileReader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
 				CSVParser csvParser = new CSVParser(fileReader,
 						CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreHeaderCase().withTrim());) {
@@ -54,7 +55,7 @@ public class EmployeeCsvHelper {
 					employee.setLogin(csvRecord.get("login"));
 					employee.setName(csvRecord.get("name"));
 					employee.setSalary(Double.parseDouble(csvRecord.get("salary")));
-					employee.setStartDate(new java.util.Date(csvRecord.get("startDate")));
+					employee.setStartDate(DateValidation.validateDate(csvRecord.get("startDate")));					
 					String valiationResult = validateCsvRecord(employee,true);
 					if (valiationResult.length() == 0) {
 						employees.add(employee);

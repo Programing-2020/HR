@@ -2,7 +2,6 @@ package com.nphc.hr.dto;
 
 import javax.validation.constraints.Min;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class EmployeeDTO {
@@ -17,7 +16,7 @@ public class EmployeeDTO {
 	@JsonProperty(value = "salary")
 	@Min(value=0)
 	private double salary;
-	//@DateValue
+	
 	@JsonProperty(value = "startDate")
 	private String startDate;
 
