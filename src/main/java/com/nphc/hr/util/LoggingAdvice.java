@@ -10,19 +10,20 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-//@Aspect
-//@Component
+@Aspect
+@Component
 public class LoggingAdvice {
 
     Logger log = LoggerFactory.getLogger(LoggingAdvice.class);
 
 
-  //  @Pointcut(value="execution(* com.Nphc.hr.*.*.*(..) )")
+    //@Pointcut(value="execution(* com.nphc.hr.*.*.*(..) )")
+    @Pointcut(value="execution(* com.nphc.hr.controller.EmployeeController.*Employee*(..) )")
     public void myPointcut() {
 
     }
 
-   // @Around("myPointcut()")
+    @Around("myPointcut()")
     public Object applicationLogger(ProceedingJoinPoint pjp) throws Throwable {
         ObjectMapper mapper = new ObjectMapper();
         String methodName = pjp.getSignature().getName();

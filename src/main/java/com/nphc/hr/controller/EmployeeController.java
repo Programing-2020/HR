@@ -43,29 +43,21 @@ public class EmployeeController {
 	@Autowired
 	private ConverterService converterService;
 	@GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<Object> getAllUserinfo(@PageableDefault(page = 0, size = 4) Pageable pageRequest) {
+	public ResponseEntity<Object> getAllEmployeeInfo(@PageableDefault(page = 0, size = 4) Pageable pageRequest) {
 		Page<Employee> employeePage = employeeService.getAllEmployees(pageRequest);
 		List<Employee> employeeResultList = employeePage.getContent();
 		List<EmployeeDTO> empDtoList;
-		empDtoList= employeeResultList.stream().map(empObj -> {
-			 System.out.println("caleed");
+		empDtoList= employeeResultList.stream().map(empObj -> {			 
 		   return converterService.convertToDto(empObj);		  
-		 }).collect(Collectors.toList());;
-		 
-		// alternate way through method reference operator
-	//	List<EmployeeDTO> empDtoList=employeeResultList.stream().map(converterService::convertToDto).collect(Collectors.toList());
+		 }).collect(Collectors.toList());;		 
 		Page<Employee> userDtoPage = new PageImpl<>(employeeResultList, pageRequest, employeePage.getTotalElements());
 		Map<String, Object> map = new HashMap<String, Object>();
-		// map.put("results", new PageImpl<>(employeeResultList, pageRequest,
-		// employeePage.getTotalElements()));
 		map.put("results", empDtoList);
-		//map.put("results", employeeResultList);
 		return ResponseEntity.status(HttpStatus.OK).body(map);
-		// return userDtoPage;
 	}
 
 	@GetMapping(value = "/{Id}", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<Object> getUserById(@PathVariable("Id") String id) {
+	public ResponseEntity<Object> getEmployeeById(@PathVariable("Id") String id) {
 		Employee employee = employeeService.getEmpoyeeById(id);
 		Map<String, Object> map = new HashMap<String, Object>();
 		if (employee == null) {
@@ -118,7 +110,7 @@ public class EmployeeController {
 	}
 
 	@DeleteMapping(value = "/{Id}", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<Object> deleteUserById(@PathVariable("Id") String id) {
+	public ResponseEntity<Object> deleteEmployeeById(@PathVariable("Id") String id) {
 		String message = employeeService.deleteEmployee(id);
 		Map<String, Object> map = new HashMap<String, Object>();
 		if (message.equalsIgnoreCase("Employee deleted")) {
