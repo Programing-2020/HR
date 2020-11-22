@@ -90,7 +90,7 @@ public class EmployeeCsvHelper {
 		if ((result.length()==0) && (employee.getLogin() == null || employee.getLogin().equals("") || employee.getLogin().length() == 0)) {
 			result=result+"Login value is null or Blank.";
 		} else {
-			if ((result.length()==0) && (employeeRepository.findByLogin(employee.getLogin()).orElse(null) != null)) {
+			if (isNewRecord && (result.length()==0) && (employeeRepository.findByLogin(employee.getLogin()).orElse(null) != null)) {
 				result=result+"Employee login not unique.";
 			}
 		}

@@ -26,7 +26,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("timestamp", new Date());
         body.put("status", status.value());
-
+        
         //Get all errors
         List<String> errors = ex.getBindingResult()
                 .getFieldErrors()

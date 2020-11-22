@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -40,7 +42,8 @@ public class EmployeeController {
 	@Autowired
 	private ConverterService converterService;
 	@GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<Object> getAllEmployeeInfo(@PageableDefault(page = 0, size = 4) Pageable pageRequest) {
+	public ResponseEntity<Object> getAllEmployeeInfo(@PageableDefault(page = 0, size = 4) Pageable pageRequest) throws Exception{
+		//MDC.put("TransactionID","1");
 		Page<Employee> employeePage = employeeService.getAllEmployees(pageRequest);
 		List<Employee> employeeResultList = employeePage.getContent();
 		List<EmployeeDTO> empDtoList;
@@ -54,7 +57,7 @@ public class EmployeeController {
 	}
 
 	@GetMapping(value = "/{Id}", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<Object> getEmployeeById(@PathVariable("Id") String id) {
+	public ResponseEntity<Object> getEmployeeById(@PathVariable("Id") String id) throws Exception {
 		Employee employee = employeeService.getEmpoyeeById(id);
 		Map<String, Object> map = new HashMap<String, Object>();
 		if (employee == null) {
@@ -67,7 +70,7 @@ public class EmployeeController {
 	}
 
 	@PostMapping(path = "/", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<Object> addEmployee(@RequestBody EmployeeDTO employeeDTO) {
+	public ResponseEntity<Object> addEmployee(@RequestBody EmployeeDTO employeeDTO) throws Exception {
 		try {		
 			Employee employee = new Employee();
 			employee.setId(employeeDTO.getId());
@@ -92,7 +95,7 @@ public class EmployeeController {
 	}
 
 	@DeleteMapping(value = "/{Id}", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<Object> deleteEmployeeById(@PathVariable("Id") String id) {
+	public ResponseEntity<Object> deleteEmployeeById(@PathVariable("Id") String id) throws Exception {
 		String message = employeeService.deleteEmployee(id);
 		Map<String, Object> map = new HashMap<String, Object>();
 		if (message.equalsIgnoreCase("Employee deleted")) {
@@ -103,9 +106,10 @@ public class EmployeeController {
 			return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(map);
 		}
 	}
-
-	@PatchMapping(path = "/", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<Object> updateEmployee(@RequestBody EmployeeDTO employeeDTO) {
+	
+	@PutMapping(path = "/{Id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<Object> updateEmployee1(@RequestBody EmployeeDTO employeeDTO) throws Exception {
+		Map<String, Object> map = new HashMap<String, Object>();
 		try {
 			Employee employeeAvailable = employeeService.getEmpoyeeById(employeeDTO.getId());
 
@@ -116,7 +120,7 @@ public class EmployeeController {
 			employee.setSalary(employeeDTO.getSalary());
 			employee.setStartDate(DateValidation.validateDate(employeeDTO.getStartDate()));
 			
-			Map<String, Object> map = new HashMap<String, Object>();
+			
 			String validateResult = "";
 			if (employeeAvailable != null) {
 				validateResult = employeeService.validateEmp(employee, false);
@@ -132,7 +136,41 @@ public class EmployeeController {
 			return ResponseEntity.status(HttpStatus.OK).body(map);
 		} catch (Exception e) {
 			e.printStackTrace();
-			return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body("error");
+			//return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body("error");
+			throw e;
+		}
+	}
+	@PatchMapping(path = "/{Id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<Object> updateEmployee(@RequestBody EmployeeDTO employeeDTO) throws Exception {
+		Map<String, Object> map = new HashMap<String, Object>();
+		try {
+			Employee employeeAvailable = employeeService.getEmpoyeeById(employeeDTO.getId());
+
+			Employee employee = new Employee();
+			employee.setId(employeeDTO.getId());
+			employee.setLogin(employeeDTO.getLogin());
+			employee.setName(employeeDTO.getName());
+			employee.setSalary(employeeDTO.getSalary());
+			employee.setStartDate(DateValidation.validateDate(employeeDTO.getStartDate()));
+			
+			
+			String validateResult = "";
+			if (employeeAvailable != null) {
+				validateResult = employeeService.validateEmp(employee, false);
+				if (validateResult.length() == 0) {
+					employeeService.saveEmp(employee);
+					map.put("results", "Successfully updated");
+				} else {
+					map.put("results", Arrays.asList(validateResult));
+				}
+			} else
+				map.put("eroror", "Employee not available, we can't update");
+
+			return ResponseEntity.status(HttpStatus.OK).body(map);
+		} catch (Exception e) {
+			e.printStackTrace();
+			//return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body("error");
+			throw e;
 		}
 	}
 
