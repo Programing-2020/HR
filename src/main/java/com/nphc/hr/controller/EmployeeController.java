@@ -33,6 +33,7 @@ import com.nphc.hr.entity.Employee;
 import com.nphc.hr.helper.EmployeeCsvHelper;
 import com.nphc.hr.service.ConverterService;
 import com.nphc.hr.service.EmployeeService;
+import com.nphc.hr.util.DateValidation;
 
 @RestController
 @RequestMapping("/users")
@@ -80,19 +81,7 @@ public class EmployeeController {
 			employee.setLogin(employeeDTO.getLogin());
 			employee.setName(employeeDTO.getName());
 			employee.setSalary(employeeDTO.getSalary());
-			java.util.Date date = null;
-			try {
-				date = new Date(logformat2.parse(employeeDTO.getStartDate()).getTime());
-				employee.setStartDate(date);
-
-			} catch (ParseException e) {
-				try {
-					date = new Date(logformat2.parse(employeeDTO.getStartDate()).getTime());
-					employee.setStartDate(date);
-				} catch (ParseException p) {
-					p.getMessage();
-				}
-			}
+			employee.setStartDate(DateValidation.validateDate(employeeDTO.getStartDate()));
 			String validateResult = employeeService.validateEmp(employee, true);
 			Map<String, Object> map = new HashMap<String, Object>();
 			if (validateResult.length() == 0) {

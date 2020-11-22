@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class EmployeeDTO {
-	@JsonIgnore
+	
 	@JsonProperty(value = "id")
 	private String id;
 	@JsonProperty(value = "login")
@@ -40,7 +40,6 @@ public class EmployeeDTO {
 		this.salary = salary;
 		this.startDate = startDate;
 	}
-	@JsonIgnore
 	public String getId() {
 		return id;
 	}
