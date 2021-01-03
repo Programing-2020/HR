@@ -41,6 +41,13 @@ public class EmployeeController {
 	private EmployeeService employeeService;
 	@Autowired
 	private ConverterService converterService;
+
+	@GetMapping(value = "/hello")
+	public ResponseEntity<Object> helloWorld(){
+		return ResponseEntity.status(HttpStatus.OK).body("Hello World");
+	}
+
+
 	@GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Object> getAllEmployeeInfo(@PageableDefault(page = 0, size = 4) Pageable pageRequest) throws Exception{
 		//MDC.put("TransactionID","1");
